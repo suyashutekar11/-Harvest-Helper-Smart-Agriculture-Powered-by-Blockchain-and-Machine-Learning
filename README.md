@@ -47,6 +47,8 @@ Harvest Helper is a decentralized web-based platform that revolutionizes agricul
 - Dashboard
 <img width="1864" height="884" alt="Dashboard" src="https://github.com/user-attachments/assets/fdc08a18-51db-4e78-b914-1dc42e95d189" />
 
+
+
 -  Harvest Helper Process Flow
   <img width="1366" height="768" alt="Select the date" src="https://github.com/user-attachments/assets/0259e722-6222-40c7-8605-565767e307ee" />
 
