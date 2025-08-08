@@ -36,14 +36,14 @@ Harvest Helper is a decentralized web-based platform that revolutionizes agricul
 ## 📦 Project Structure
 
 project-root/
-├── app/                   # Flask backend
-│   ├── routes/           # Flask routes
-│   ├── templates/        # HTML templates (Jinja2)
-│   ├── static/           # CSS, JS, and images
-│   └── app.py            # Main Flask application
+├── app/ # Flask backend
+│ ├── app.py # Main Flask application
+│ ├── routes/ # Flask routes
+│ ├── templates/ # HTML templates (Jinja2)
+│ └── static/ # CSS, JS, and images
 ├── blockchain/
-│   └── contracts/        # Solidity smart contracts
-└── README.md             # Project documentation
+│ └── contracts/ # Solidity smart contracts
+└── README.md # Project documentation
 
 
 ## 🌱 Future Scope
