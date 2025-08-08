@@ -1,0 +1,152 @@
+{% extends 'Reviewteam.html' %}
+
+{% block title %}Details Verification Appointments{% endblock %}
+
+{% block content %}
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3b5998; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .btn { background-color: green; color: white; padding: 5px 10px; border: none; cursor: pointer; }
+        .btn:hover { background-color: darkgreen; }
+        .modal { display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 40%; border-radius: 8px; }
+        .close { float: right; cursor: pointer; font-size: 22px; }
+        .confirm-btn { background-color: blue; color: white; padding: 5px 10px; margin-top: 10px; cursor: pointer; }
+        .reject-btn { background-color: red; color: white; padding: 5px 10px; margin-top: 10px; cursor: pointer; }
+    </style>
+
+
+    <h2>Details Verification Appointments</h2>
+
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>ETH Address</th>
+            <th>Crop Name</th>
+            <th>Action</th>
+        </tr>
+        {% for app in applications %}
+        <tr id="row-{{ app.application_id }}">
+            <td>{{ app.farmer_details.username }}</td>
+            <td>{{ app.eth_address }}</td>
+            <td>{{ app.crop_details.cropName }}</td>
+            <td>
+                <button class="btn" onclick="showDetails('{{ app.application_id }}', '{{ app.eth_address }}')">Show Details</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Modal for Showing Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Verify Application Details</h3>
+            <form id="reviewForm">
+                <input type="hidden" id="application_id">
+                <input type="hidden" id="eth_address">
+                <div id="detailsContent"></div>
+                <button type="button" class="confirm-btn" onclick="confirmAll()">Select All</button>
+                <button type="button" id="acceptButton" class="confirm-btn" onclick="confirmApplication()" disabled>Accept</button>
+                <button type="button" class="reject-btn" onclick="rejectApplication()">Reject</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showDetails(applicationId, ethAddress) {
+            fetch(`/get_application_details/${applicationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let detailsContent = document.getElementById("detailsContent");
+                    detailsContent.innerHTML = `
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Application ID: ${data.application_id}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Blockchain ID: ${data.blockchain_id}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Crop Name: ${data.crop_details.cropName}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Crop Type: ${data.crop_details.cropType}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Sowing Date: ${data.crop_details.sowDate}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Harvest Date: ${data.crop_details.harvestDate}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> District: ${data.crop_details.district}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Farmer Name: ${data.farmer_details.username}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Address: ${data.farmer_details.userAddress}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Contact: ${data.farmer_details.contactNumber}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> ETH Address: ${data.eth_address}</label><br>
+                        <label><input type="checkbox" class="check-item" onchange="checkAllBoxes()"> Review Date: ${data.mid_term_date}</label><br>
+                    `;
+                    document.getElementById("application_id").value = data.application_id;
+                    document.getElementById("eth_address").value = ethAddress;
+                    document.getElementById("detailsModal").style.display = "block";
+                });
+        }
+
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+
+        function confirmAll() {
+            document.querySelectorAll(".check-item").forEach(checkbox => checkbox.checked = true);
+            checkAllBoxes();
+        }
+
+        function checkAllBoxes() {
+            let allChecked = [...document.querySelectorAll(".check-item")].every(checkbox => checkbox.checked);
+            document.getElementById("acceptButton").disabled = !allChecked;
+        }
+
+        function confirmApplication() {
+            let ethAddress = document.getElementById("eth_address").value;
+            let applicationId = document.getElementById("application_id").value;
+
+            fetch(`/accept_application`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ eth_address: ethAddress })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || "Unknown error");
+                }
+                alert(data.message);
+
+                // Remove the accepted application row dynamically
+                let row = document.getElementById(`row-${applicationId}`);
+                if (row) {
+                    row.remove();
+                }
+
+                closeModal();
+            })
+            .catch(error => {
+                console.error("Error accepting application:", error);
+                alert("Failed to accept application. Check console for details.");
+            });
+        }
+
+        function rejectApplication() {
+            let applicationId = document.getElementById("application_id").value;
+
+            fetch(`/reject_application/${applicationId}`, { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    let row = document.getElementById(`row-${applicationId}`);
+                    if (row) {
+                        row.remove();
+                    }
+                    closeModal();
+                });
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById("detailsModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+    {% endblock %}
+

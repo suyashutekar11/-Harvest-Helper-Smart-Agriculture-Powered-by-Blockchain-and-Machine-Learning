@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Information</title>
+<link rel="stylesheet" href="{{url_for('static',filename='style/weather.css')}}">
+</head>
+<body>
+<form id="weather-form">
+    <input type="text" id="city" placeholder="Enter city" required>
+    <input type="text" id="state" placeholder="Enter state" required>
+    <input type="submit" value="Get Weather">
+</form>
+
+<div id="weather-info"></div>
+
+<script>
+document.getElementById('weather-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var city = document.getElementById('city').value;
+    var state = document.getElementById('state').value;
+    getWeather(city, state);
+});
+
+function getWeather(city, state) {
+    var apiKey = 'd27b05ef6828dd8d1e6d38de6b8eda1d'; // Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
+    var url = 'https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',' + state + '&appid=' + apiKey;
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        var weatherInfo = document.getElementById('weather-info');
+        if(data.list.length > 0) {
+            var latestData = data.list[data.list.length - 1];
+            var tempCelsius = (latestData.main.temp - 273.15).toFixed(2); // Convert temperature to Celsius
+            var rainfall = 0;
+            // Calculate rainfall for the last 5 days
+            for(var i = data.list.length - 1; i >= 0; i--) {
+                if(data.list[i].rain) {
+                    rainfall += data.list[i].rain['3h'] ? data.list[i].rain['3h'] : 0;
+                }
+            }
+            rainfall = rainfall.toFixed(2); // Round rainfall to 2 decimal places
+            weatherInfo.innerHTML = `
+                <h2>Weather Information for ${city}, ${state}</h2>
+                <p>Temperature: ${tempCelsius} °C</p>
+                <p>Rainfall (past 5 days): ${rainfall} mm</p>
+                <p>Humidity: ${latestData.main.humidity}%</p>
+                <p>Weather: ${latestData.weather[0].main}</p>
+            `;
+        } else {
+            weatherInfo.innerHTML = '<p>No weather data available.</p>';
+        }
+    })
+    .catch(error => {
+        console.log('Error fetching weather data:', error);
+        var weatherInfo = document.getElementById('weather-info');
+        weatherInfo.innerHTML = '<p>Failed to fetch weather data. Please try again later.</p>';
+    });
+}
+</script>
+</body>
+</html>

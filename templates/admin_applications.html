@@ -1,0 +1,147 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<h1>Crop Applications</h1>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Crop Name</th>
+            <th>Crop Type</th>
+            <th>Sow Date</th>
+            <th>Harvest Date</th>
+            <th>District</th>
+            <th>User Address</th>
+            <th>Contact Number</th>
+            <th>Ethereum Address</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for application in applications %}
+        <tr>
+            <td>{{ application.username }}</td>
+            <td>{{ application.crop_details.cropName }}</td>
+            <td>{{ application.crop_details.cropType }}</td>
+            <td>{{ application.crop_details.sowDate }}</td>
+            <td>{{ application.crop_details.harvestDate }}</td>
+            <td>{{ application.crop_details.district }}</td>
+            <td>{{ application.farmer_details.userAddress }}</td>
+            <td>{{ application.farmer_details.contactNumber }}</td>
+            <td>{{ application.ETH_ADDRESS }}</td>
+            <td>
+                <button onclick="showAcceptPopup('{{ application.username }}', '{{ application._id }}')">Accept</button>
+
+                <button onclick="showDeclinePopup('{{ application.username }}', '{{ application._id }}')">Decline</button>
+
+                
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="9">No applications found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+    // Show the confirmation dialog and handle action
+    function showAcceptPopup(username, applicationId) {
+        const message = `Are you sure you want to accept the application for user: ${username}?`;
+        if (confirm(message)) {
+            fetch(`/admin/send_review_email/${applicationId}`, {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Review email sent successfully!");
+                    location.reload(); // Refresh the page
+                } else {
+                    alert("Failed to send review email.");
+                }
+            })
+            .catch(err => alert("Error: " + err));
+        }
+    }
+</script>
+<script>
+    function showDeclinePopup(username, applicationId) {
+        const message = `Are you sure you want to decline the application for user: ${username}?`;
+        if (confirm(message)) {
+            fetch(`/admin/decline_applicationmail/${applicationId}`, {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Decline email sent successfully!");
+                    location.reload(); // Refresh page to update status
+                } else {
+                    alert("Failed to decline the application.");
+                }
+            })
+            .catch(err => alert("Error: " + err));
+        }
+    }
+</script>
+<script>
+    // JavaScript for handling the Accept and Decline buttons
+    document.querySelectorAll('.review-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const appId = this.getAttribute('data-id');
+            console.log("Applying for review for ID:", appId);
+    
+            fetch(`/admin/apply_for_review/${appId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ application_id: appId }) // Sending data as JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from apply for review:", data);
+                
+                if (data.success) {
+                    alert('Application sent for review successfully!');
+    
+                    // Remove the corresponding row from the table
+                    const applicationRow = document.getElementById(`application-${appId}`);
+                    if (applicationRow) {
+                        applicationRow.remove(); // Remove the row
+                        console.log("Row removed for ID:", appId);
+                        
+                    } else {
+                        console.error("Row not found for ID:", appId);
+                    }
+                } else {
+                    alert('Error applying for review: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+    
+    document.querySelectorAll('.decline-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const appId = this.getAttribute('data-id');
+            fetch(`/admin/decline_application/${appId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ application_id: appId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Application declined and deleted successfully!');
+                    location.reload();  // Reload the page after decline
+                } else {
+                    alert('Error declining application: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock %}

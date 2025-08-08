@@ -1,0 +1,39 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='accept_app.css') }}">
+
+        <h2>Accepted Applications</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Crop Name</th>
+                    <th>Crop Type</th>
+                    <th>Sow Date</th>
+                    <th>Harvest Date</th>
+                    <th>State</th>
+                    <th>District</th>
+                    <th>Address</th>
+                    <th>Contact Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ application.username }}</td>
+                    <td>{{ application.crop_name }}</td>
+                    <td>{{ application.crop_type }}</td>
+                    <td>{{ application.sow_date }}</td>
+                    <td>{{ application.harvest_date }}</td>
+                    <td>{{ application.state }}</td>
+                    <td>{{ application.district }}</td>
+                    <td>{{ application.address }}</td>
+                    <td>{{ application.contact_number }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endblock %}
+

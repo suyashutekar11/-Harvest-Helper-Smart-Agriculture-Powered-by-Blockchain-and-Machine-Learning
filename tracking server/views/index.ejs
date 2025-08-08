@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Crop Tracker</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>🌾 Blockchain Crop Application</h1>
+
+    <h2>📌 Stored Application Data</h2>
+    <% if (storedData) { %>
+        <p><strong>Application ID:</strong> <%= storedData.id %></p>
+        <p><strong>Status:</strong> <%= storedData.status %></p>
+        <p><strong>Grade:</strong> <%= storedData.grade %></p>
+        <p><strong>Per KG Rate:</strong> <%= storedData.perKgRate %></p>
+        <p><strong>Quantity:</strong> <%= storedData.quantity %></p>
+        <p><strong>Grading Timestamp:</strong> <%= storedData.gradingTimestamp %></p>
+        <p><strong>Harvest Date:</strong> <%= storedData.harvestDate %></p>
+    <% } else { %>
+        <p>❌ No application found for this address.</p>
+    <% } %>
+
+    <h2>📅 Blockchain Events</h2>
+    <% if (events.length > 0) { %>
+        <% events.forEach(event => { %>
+            <div class="event-card">
+                <h3>📌 <%= event.eventName %></h3>
+                <p><strong>Application ID:</strong> <%= event.applicationId %></p>
+                <p><strong>Timestamp:</strong> <%= event.timestamp %></p>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>❌ No events found.</p>
+    <% } %>
+</body>
+</html>

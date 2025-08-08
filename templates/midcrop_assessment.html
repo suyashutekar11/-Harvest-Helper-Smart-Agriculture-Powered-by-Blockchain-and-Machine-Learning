@@ -1,0 +1,117 @@
+{% extends 'Reviewteam.html' %}
+
+    {% block title %}Mid-Crop Assessment{% endblock %}
+    {% block content %}
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3b5998; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .btn { background-color: green; color: white; padding: 5px 10px; border: none; cursor: pointer; }
+        .btn:hover { background-color: darkgreen; }
+        .modal { display: none; position: fixed; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 40%; border-radius: 8px; }
+        .close { float: right; cursor: pointer; font-size: 22px; }
+    </style>
+</head>
+<body>
+
+    <h2>Mid-Crop Assessment Applications</h2>
+
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>ETH Address</th>
+            <th>Crop Name</th>
+            <th>Action</th>
+        </tr>
+        {% for app in applications %}
+        <tr>
+            <td>{{ app.farmer_details.username }}</td>
+            <td>{{ app.eth_address }}</td>
+            <td>{{ app.crop_details.cropName }}</td>
+            <td>
+                <button class="btn" onclick="showDetails('{{ app.application_id }}')">Show Details</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Modal for Showing Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Grade Crop</h3>
+            <form id="gradeForm">
+                <input type="hidden" id="application_id">
+                <input type="hidden" id="eth_address">
+                <div id="detailsContent"></div>
+                <label>Select Grade:</label>
+                <select id="grade">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+                <button type="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showDetails(applicationId) {
+            fetch(`/get_application_details/${applicationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let detailsContent = document.getElementById("detailsContent");
+                    detailsContent.innerHTML = `
+                        <p><strong>Application ID:</strong> ${data.application_id}</p>
+                        <p><strong>Blockchain ID:</strong> ${data.blockchain_id}</p>
+                        <p><strong>Crop Name:</strong> ${data.crop_details.cropName}</p>
+                        <p><strong>Crop Type:</strong> ${data.crop_details.cropType}</p>
+                        <p><strong>Sowing Date:</strong> ${data.crop_details.sowDate}</p>
+                        <p><strong>Harvest Date:</strong> ${data.crop_details.harvestDate}</p>
+                        <p><strong>District:</strong> ${data.crop_details.district}</p>
+                        <p><strong>Farmer Name:</strong> ${data.farmer_details.username}</p>
+                        <p><strong>Address:</strong> ${data.farmer_details.userAddress}</p>
+                        <p><strong>Contact:</strong> ${data.farmer_details.contactNumber}</p>
+                        <p><strong>ETH Address:</strong> ${data.eth_address}</p>
+                        <p><strong>Review Date:</strong> ${data.mid_term_date}</p>
+                    `;
+                    document.getElementById("application_id").value = data.application_id;
+                    document.getElementById("eth_address").value = data.eth_address;  // ✅ Store ETH address here
+                    document.getElementById("detailsModal").style.display = "block";
+                });
+        }
+        
+
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+
+        document.getElementById("gradeForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let applicationId = document.getElementById("application_id").value;
+            let grade = document.getElementById("grade").value;
+            let ethAddress = document.getElementById("eth_address").value;  // Fetch ETH address from a hidden field
+            if (!ethAddress || !grade) {
+                alert("ETH Address or Grade is missing!");
+                return;
+            }
+            fetch("/grade_crop", {
+                method: "POST",
+                body: JSON.stringify({ eth_address: ethAddress, grade: grade }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                closeModal();
+                location.reload();
+            })
+            .catch(error => console.error("Error:", error));
+        });
+        
+    </script>
+
+    {% endblock %}

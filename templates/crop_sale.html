@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Sale Applications</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color:rgb(252, 248, 248);
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005f73;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            max-height: 70%;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .details-table th, .details-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .details-table th {
+            background-color:rgb(251, 248, 248);
+            color: black;  /* Ensures black font color */
+            font-weight: bold; 
+        }
+    </style>
+
+    <script>
+        function showDetails(details) {
+            document.getElementById("modal-content-body").innerHTML = `
+                <table class="details-table">
+                    <tr><th>Application ID</th><td>${details.application_id}</td></tr>
+                    <tr><th>Blockchain ID</th><td>${details.blockchain_id}</td></tr>
+                    <tr><th>ETH Address</th><td>${details.eth_address}</td></tr>
+                    <tr><th>Farmer Name</th><td>${details.farmer_details.username}</td></tr>
+                    <tr><th>Contact Number</th><td>${details.farmer_details.contactNumber}</td></tr>
+                    <tr><th>Address</th><td>${details.farmer_details.userAddress}</td></tr>
+                    <tr><th>Crop Name</th><td>${details.crop_details.cropName}</td></tr>
+                    <tr><th>Crop Type</th><td>${details.crop_details.cropType}</td></tr>
+                    <tr><th>District</th><td>${details.crop_details.district}</td></tr>
+                    <tr><th>Sow Date</th><td>${details.crop_details.sowDate}</td></tr>
+                    <tr><th>Harvest Date</th><td>${details.harvest_date}</td></tr>
+                    <tr><th>Mid-Term Deadline</th><td>${details.mid_term_deadline}</td></tr>
+                    <tr><th>Grade</th><td>${details.grade}</td></tr>
+                    <tr><th>Per KG Rate</th><td>${details.per_kg_rate} Rs</td></tr>
+                    <tr><th>Quantity</th><td>${details.quantity} KG</td></tr>
+                    <tr><th>Status</th><td>${details.status}</td></tr>
+                </table>
+                <button class="add-to-market" onclick='addToMarket(${JSON.stringify(details)})'>Add to Market</button>
+            `;
+            document.getElementById("detailsModal").style.display = "block";
+        }
+    
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+    
+        function addToMarket(details) {
+            fetch('/add_to_market', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(details)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                closeModal();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+    
+
+</head>
+<body>
+
+    <h2>Crop Sale Applications</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>ETH Address</th>
+                <th>Crop Name</th>
+                <th>Per KG Rate</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for application in applications %}
+            <tr>
+                <td>{{ application.farmer_details.username }}</td>
+                <td>{{ application.eth_address }}</td>
+                <td>{{ application.crop_details.cropName }}</td>
+                <td>{{ application.per_kg_rate }} Rs</td>
+                <td>{{ application.quantity }} KG</td>
+                <td>
+                    <button onclick='showDetails({{ application | tojson | safe }})'>Show Details</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal Popup -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Application Details</h3>
+            <div id="modal-content-body"></div>
+        </div>
+    </div>
+
+</body>
+</html>

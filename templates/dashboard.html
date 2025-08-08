@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Subscription Dashboard</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f8f9fa, #e0f7fa);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-align: center;
+            color: #004d40;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 320px;
+            margin: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #00796b;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            margin: 10px 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .subscribe-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #00796b;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .subscribe-button:hover {
+            background-color: #004d40;
+        }
+
+        /* Flex container for cards */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Want to Sell Your Crop? Choose a Subscription Plan!</h1>
+
+    <div class="cards-container">
+        <div class="card">
+            <h2>Gold Subscription</h2>
+            <p>Sell your crop and get insurance coverage for any damage or loss.</p>
+            <p><strong>Amount: ₹1000 / year</strong></p>
+
+            <a href="{{ url_for('subscribe', plan='gold') }}" class="subscribe-button">Subscribe Now</a>
+        </div>
+
+        <div class="card">
+            <h2>Silver Subscription</h2>
+            <p>Get a premium platform to sell your crops to thousands of buyers.</p>
+            <p><strong>Amount: ₹500 / year</strong></p>
+
+            <a href="{{ url_for('subscribe', plan='silver') }}" class="subscribe-button">Subscribe Now</a>
+        </div>
+    </div>
+</body>
+</html>

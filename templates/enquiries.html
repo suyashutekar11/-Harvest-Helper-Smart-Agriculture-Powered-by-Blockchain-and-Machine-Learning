@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enquiries</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="header">
+        <a href="/admin" class="back-button">&#8249; Back</a>
+    </div>
+    <h1>Enquiries</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Mobile Number</th>
+                <th>Email</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in enquiries %}  <!-- Change 'messages' to 'enquiries' -->
+            <tr>
+                <td>{{ message['name'] }}</td>  <!-- Access fields as dictionary keys -->
+                <td>{{ message['phone'] }}</td>
+                <td>{{ message['email'] }}</td>
+                <td>{{ message['message'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

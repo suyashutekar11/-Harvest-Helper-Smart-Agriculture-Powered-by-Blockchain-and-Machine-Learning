@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ecommerce Inventory</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f6fdf7;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 20px;
+        }
+        .back-button:hover {
+            background-color: #388e3c;
+        }
+        .title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 32px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0px 4px 8px rgba(0, 128, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #a5d6a7;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #e8f5e9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-button" onclick="history.back()">Back</button>
+        <div class="title">Ecommerce Inventory</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Application ID</th>
+                <th>Crop Name</th>
+                <th>Crop Type</th>
+                <th>District</th>
+                <th>Harvest Date</th>
+                <th>Farmer Username</th>
+                <th>Quantity (kg)</th>
+                <th>Per Kg Rate (₹)</th>
+                <th>Grade</th>
+                <th>Blockchain ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory %}
+            <tr>
+                <td>{{ item.application_id }}</td>
+                <td>{{ item.crop_details.cropName }}</td>
+                <td>{{ item.crop_details.cropType }}</td>
+                <td>{{ item.crop_details.district }}</td>
+                <td>{{ item.crop_details.harvestDate[:10] }}</td>
+                <td>{{ item.farmer_details.username }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₹{{ item.per_kg_rate }}</td>
+                <td>{{ item.grade }}</td>
+                <td>{{ item.blockchain_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

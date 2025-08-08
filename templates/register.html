@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style/login.css')}}">
+    <style>
+        .requirement {
+            font-size: 14px;
+            color: gray;
+            display: flex;
+            align-items: center;
+        }
+
+        .fulfilled {
+            color: green;
+        }
+
+        .not-fulfilled {
+            color: red;
+        }
+
+        .requirement input[type="checkbox"] {
+            margin-right: 8px;
+        }
+    </style>
+    <script>
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+
+            // Elements to indicate requirement fulfillment
+            const lengthReq = document.getElementById('lengthReq');
+            const upperReq = document.getElementById('upperReq');
+            const lowerReq = document.getElementById('lowerReq');
+            const numberReq = document.getElementById('numberReq');
+            const specialReq = document.getElementById('specialReq');
+
+            // Regular expressions for checks
+            const lengthCheck = password.length >= 8;
+            const upperCheck = /[A-Z]/.test(password);
+            const lowerCheck = /[a-z]/.test(password);
+            const numberCheck = /\d/.test(password);
+            const specialCheck = /[@$!%*?&]/.test(password);
+
+            // Update requirement statuses
+            updateRequirement(lengthReq, lengthCheck);
+            updateRequirement(upperReq, upperCheck);
+            updateRequirement(lowerReq, lowerCheck);
+            updateRequirement(numberReq, numberCheck);
+            updateRequirement(specialReq, specialCheck);
+        }
+
+        function updateRequirement(element, isValid) {
+            const checkbox = element.querySelector("input[type='checkbox']");
+            element.className = isValid ? 'requirement fulfilled' : 'requirement not-fulfilled';
+            checkbox.checked = isValid;
+        }
+
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!password.match(passwordPattern)) {
+                alert("Password must meet all requirements.");
+                return false;
+            }
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <form method="post" action="/register" onsubmit="return validatePassword()">
+        <h2>Register</h2>
+        <label for="first_name">First Name:</label><br>
+        <input type="text" id="first_name" name="first_name" required><br>
+
+        <label for="last_name">Last Name:</label><br>
+        <input type="text" id="last_name" name="last_name" required><br>
+
+        <label for="email">Email Address:</label><br>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" oninput="checkPasswordStrength()" required><br>
+
+        <!-- Password requirements list -->
+        <ul>
+            <li id="lengthReq" class="requirement not-fulfilled">
+                <input type="checkbox" disabled> At least 8 characters
+            </li>
+            <li id="upperReq" class="requirement not-fulfilled">
+                <input type="checkbox" disabled> At least 1 uppercase letter
+            </li>
+            <li id="lowerReq" class="requirement not-fulfilled">
+                <input type="checkbox" disabled> At least 1 lowercase letter
+            </li>
+            <li id="numberReq" class="requirement not-fulfilled">
+                <input type="checkbox" disabled> At least 1 number
+            </li>
+            <li id="specialReq" class="requirement not-fulfilled">
+                <input type="checkbox" disabled> At least 1 special character (@$!%*?&)
+            </li>
+        </ul>
+
+        <label for="confirm_password">Confirm Password:</label><br>
+        <input type="password" id="confirm_password" name="confirm_password" required><br><br>
+
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>

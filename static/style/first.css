@@ -1,0 +1,100 @@
+body {
+  background-image: url(prediction_back.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Arial, sans-serif; /* Set a fallback font */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Make the body cover the viewport height */
+}
+
+form {
+  width: 450px; /* Adjusted width for better alignment */
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9); /* Increased opacity for better readability */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+}
+
+input[type="text"],
+input[type="submit"] {
+  width: calc(100% - 20px); /* Adjusted width to account for padding */
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc; /* Added border for better visibility */
+  box-sizing: border-box; /* Include padding and border in the width */
+}
+
+input[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049; /* Darken the color on hover */
+}
+
+label {
+  font-size: 16px;
+  margin-top: 20px;
+  display: block;
+  color: #333; /* Darken label text for better contrast */
+}
+input[type="submit"]::after {
+  content: "Recommend me crop";
+}
+button[type="button"] {
+  width: calc(100% - 20px); /* Adjusted width to account for padding */
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc; /* Added border for better visibility */
+  background-color: #2196F3; /* Button color */
+  color: white; /* Text color */
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+button[type="button"]:hover {
+  background-color: #0b7dda; /* Darken the color on hover */
+}
+
+.card {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  font-family: Arial, sans-serif;
+}
+
+.card-content h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card-content p {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.card-content a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.card-content a:hover {
+  text-decoration: underline;
+}
+

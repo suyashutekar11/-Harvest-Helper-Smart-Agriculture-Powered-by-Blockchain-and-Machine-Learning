@@ -1,0 +1,38 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+    <h1>Registered Users</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user['first_name'] }} {{ user['last_name'] }}</td>
+                <td>{{ user['username'] }}</td>
+                <td>{{ user['email'] }}</td>
+                <td>
+                    <div class="user-actions">
+                        <form action="/change_password" method="post" class="action-form">
+                            <input type="hidden" name="username" value="{{ user['username'] }}">
+                            <input type="password" name="new_password" class="input-password" placeholder="New Password" required>
+                            <button type="submit" class="btn change-password">Change Password</button>
+                        </form>
+                        <form action="/remove_user" method="post" class="action-form">
+                            <input type="hidden" name="username" value="{{ user['username'] }}">
+                            <button type="submit" class="btn remove-user">Remove User</button>
+                        </form>
+                    </div>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

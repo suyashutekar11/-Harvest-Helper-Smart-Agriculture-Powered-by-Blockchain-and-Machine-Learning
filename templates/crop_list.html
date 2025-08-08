@@ -1,0 +1,26 @@
+{% extends "ecommerce.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Your Selected Crops</h2>
+
+    <div class="row">
+        {% for crop in crops %}
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center border p-3 mb-3">
+                <div>
+                    <h5>Crop name: {{ crop.name }}</h5>
+                    <p>Grade: {{ crop.grade }}, Rate per kg: {{ crop.rate }}, Crop type: {{ crop.type }}</p>
+                </div>
+                <div>
+                    <a href="#" class="btn btn-success">
+                        <img src="{{ url_for('static', filename='cart-icon.png') }}" alt="cart" width="20"> 
+                        Buy Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

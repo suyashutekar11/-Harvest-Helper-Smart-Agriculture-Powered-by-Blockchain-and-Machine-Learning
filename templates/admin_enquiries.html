@@ -1,0 +1,25 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+    <h1>Enquiries</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Mobile Number</th>
+                <th>Email</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enquiry in enquiries %}
+            <tr>
+                <td>{{ enquiry.name }}</td>
+                <td>{{ enquiry.phone }}</td>
+                <td>{{ enquiry.email }}</td>
+                <td>{{ enquiry.message }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

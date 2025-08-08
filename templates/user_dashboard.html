@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='saledash.css') }}">
+    <style>
+        /* Modal Styling */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.5); 
+        }
+        .modal-content { 
+            background: white; 
+            margin: 10% auto; 
+            padding: 20px; 
+            width: 30%; 
+            border-radius: 8px; 
+        }
+        .modal-header {
+            background-color: #343a40;
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .modal-body {
+            padding: 15px;
+        }
+        .modal-footer {
+            justify-content: center;
+        }
+        
+.form-control {
+    border-radius: 5px;
+}
+.input-group {
+    margin-bottom: 10px;
+}
+        
+        .close { 
+            float: right; 
+            cursor: pointer; 
+            font-size: 22px; 
+        }
+        #bankDetailsModal {
+            z-index: 1051 !important; /* Ensure it appears on top */
+        }
+        #confirmationModal {
+            z-index: 1050; /* Keep the confirmation modal behind */
+        }
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            width: 100%;
+            border-radius: 5px;
+        }
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+        
+    </style>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en', // Default language
+            includedLanguages: 'en,hi,mr' // Languages you want to support
+          }, 'google_translate_element');
+        }
+      </script>
+      <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <div id="google_translate_element"></div>
+
+    <header>
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <a href="#">Harvest Helpers</a>
+            </div>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a href="/ratesofcrop">Grades and Rates</a></li>
+                <li class="nav-item"><a href="/about_us">About Us</a></li>
+                <li class="nav-item"><a href="/contact">Contact Us</a></li>
+                <li class="nav-item"><a href="/insurance_form">Get Insurance</a></li>
+                <li class="nav-item"><a href="/logout">Logout</a></li>
+                <li class="nav-item"><a>{{ user_first_name }}</a></li>
+
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="card-container">
+            <div class="card">
+                <img src="{{ url_for('static', filename='Apply for sale.jpg') }}" alt="Apply for Sale" class="card-image">
+                <h3>Click Below To Apply For Sale</h3>
+                <a href="/apply_for_sale" class="btn">Click Here</a>
+            </div>
+            <div class="card">
+                <img src="{{ url_for('static', filename='checkapplicationstatus.png') }}" alt="Check Status" class="card-image">
+                <h3>Check Application Status</h3>
+                <a href="/status" class="btn">Click Here</a>
+            </div>
+        </div>
+
+        {% if user_application and user_application.status.strip() == "Application Under Mid-Term Review" %}
+        <div class="midterm-check-container">
+            <div class="midterm-check-card">
+                <h3 class="midterm-title">Application Details Verification Needed</h3>
+                <p class="midterm-text">Please Book Appointment For Details Verification</p>
+        
+                {% if not user_application.mid_term_scheduled %}
+                    <button onclick="openModal()" class="btn btn-primary midterm-btn">Book Details Verification Appointment</button>
+                {% else %}
+                    <p class="midterm-text">Appointment Date: 
+                        <strong>{{ user_application.mid_term_date.strftime('%Y-%m-%d') if user_application.mid_term_date else "Not Scheduled" }}</strong>
+
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+
+        <!-- New Feature: Date Selection for Mid-Crop Assessment -->
+        {% if user_application and user_application.status == "Details Verified Successfully" %}
+            <div class="midterm-check-container">
+                <div class="midterm-check-card">
+                    <h3 class="midterm-title">Mid-Term Crop Assessment Required</h3>
+                    <p class="midterm-text">Please select a date for the mid-term crop assessment.</p>
+                    
+                    <form id="midtermAssessmentForm">
+                        <input type="hidden" id="eth_address" value="{{ user_application.eth_address }}">
+                        <label for="assessment_date">Select Date:</label>
+                        <input type="date" id="assessment_date" name="assessment_date" required>
+                        <button type="submit" class="btn btn-success">Confirm Assessment Date</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- New Feature: Harvest Date Selection (AFTER GRADING) -->
+        {% if user_application and "Mid Crop Assessment Done Successfully" in user_application.status %}
+            <div class="midterm-check-container">
+                <div class="midterm-check-card">
+                    <h3 class="midterm-title">Select Harvest Date</h3>
+                    <p class="midterm-text"> Please select a harvest date.</p>
+
+                    <form id="harvestDateForm">
+                        <input type="hidden" id="eth_address" value="{{ user_application.eth_address }}">
+                        <label for="harvest_date">Select Harvest Date:</label>
+                        <input type="date" id="harvest_date" name="harvest_date" required>
+                        <button type="submit" class="btn btn-success">Confirm Harvest Date</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Modal for Booking Mid-Term Check -->
+        <div id="midtermModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>Select The Appointment Date</h3>
+                <form id="midtermForm">
+                    <input type="hidden" id="eth_address" value="{{ user_application.eth_address }}">
+                    <label for="midterm_date">Select Date:</label>
+                    <input type="date" id="midterm_date" name="midterm_date" required>
+                    <button type="submit" class="btn btn-success">Confirm Appointment</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    {% if user_application and "rate assigned per kg" in user_application.status %}
+    <div class="rate-confirmation-container">
+        <div class="rate-confirmation-card">
+            <h3 class="confirmation-title">Your Application Has Been Accepted</h3>
+            <p class="confirmation-text">
+                The assigned grade is <strong>{{ user_application.grade }}</strong>, 
+                with a rate of <strong>{{ user_application.per_kg_rate }} Rs</strong> per kg 
+                for a total quantity of <strong>{{ user_application.quantity }} kg</strong>.
+            </p>
+            <p>Do you agree to proceed with the sale at this rate?</p>
+            
+            <button class="btn btn-success" onclick="openBankModal()">Yes</button>
+            <button class="btn btn-danger" onclick="confirmSale(false)">No</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bank Details Modal -->
+<!-- Bank Details Modal -->
+<div id="bankDetailsModal" class="modal">
+    <div class="modal-content bank-form">
+        <span class="close" onclick="closeBankModal()">&times;</span>
+        <h3 class="modal-title">Enter Your Bank Details</h3>
+        <form id="bankDetailsForm">
+            <div class="form-group">
+                <label for="accountHolder">Account Holder Name</label>
+                <input type="text" id="accountHolder" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="accountNumber">Bank Account Number</label>
+                <input type="text" id="accountNumber" class="form-control" required pattern="\d{9,18}" 
+                       title="Enter a valid account number (9-18 digits)">
+            </div>
+
+            <div class="form-group">
+                <label for="bankName">Bank Name</label>
+                <input type="text" id="bankName" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ifscCode">IFSC Code</label>
+                <input type="text" id="ifscCode" class="form-control" required pattern="^[A-Z]{3}0000\d{3}$" 
+                       title="Enter a valid IFSC code (e.g., SBI00001213)">
+            </div>
+
+            <button type="submit" class="btn btn-submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- CSS Styling -->
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #fff;
+        padding: 25px;
+        width: 35%;
+        border-radius: 12px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background-color: #28a745;
+        border: none;
+        color: white;
+        font-size: 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background-color: #218838;
+    }
+
+    .close {
+        float: right;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: red;
+    }
+</style>
+
+
+<script>
+    function openBankModal() {
+        document.getElementById("bankDetailsModal").style.display = "block";
+    }
+
+    function closeBankModal() {
+        document.getElementById("bankDetailsModal").style.display = "none";
+    }
+
+    document.getElementById("bankDetailsForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const bankDetails = {
+            accountHolder: document.getElementById("accountHolder").value.trim(),
+            accountNumber: document.getElementById("accountNumber").value.trim(),
+            bankName: document.getElementById("bankName").value.trim(),
+            ifscCode: document.getElementById("ifscCode").value.trim(),
+        };
+
+        if (!validateBankDetails(bankDetails)) return;
+
+        closeBankModal();
+        confirmSale(true, bankDetails);
+    });
+
+    function validateBankDetails(bankDetails) {
+        const ifscRegex = /^[A-Z]{3}0000\d{3}$/;
+        const accountNumberRegex = /^\d{9,18}$/;
+
+        if (!bankDetails.accountHolder || !bankDetails.bankName) {
+            alert("All fields are required.");
+            return false;
+        }
+
+        if (!accountNumberRegex.test(bankDetails.accountNumber)) {
+            alert("Invalid account number (9-18 digits).");
+            return false;
+        }
+
+        if (!ifscRegex.test(bankDetails.ifscCode)) {
+            alert("Invalid IFSC Code format.");
+            return false;
+        }
+
+        return true;
+    }
+
+    function confirmSale(accepted, bankDetails = null) {
+        if (accepted && !bankDetails) {
+            openBankModal();
+            return;
+        }
+
+        let ethAddress = "{{ user_application.eth_address }}";
+
+        fetch("/confirm_sale", {
+            method: "POST",
+            body: JSON.stringify({
+                eth_address: ethAddress,
+                accepted: accepted,
+                bank_details: bankDetails
+            }),
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            window.location.reload();
+        })
+        .catch(error => console.error("Error:", error));
+    }
+</script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("midtermModal");
+            const closeButton = document.querySelector(".close");
+
+            window.openModal = function() {
+                modal.style.display = "block";
+            };
+
+            window.closeModal = function() {
+                modal.style.display = "none";
+            };
+
+            closeButton.addEventListener("click", closeModal);
+
+
+            document.getElementById("midtermForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                let ethAddress = document.getElementById("eth_address").value;
+                let midtermDate = document.getElementById("midterm_date").value;
+            
+                fetch(`/book_midterm/${ethAddress}`, {
+                    method: "POST",
+                    body: JSON.stringify({ midterm_date: midtermDate }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();
+                })
+                .catch(error => console.error("Error:", error));
+            });
+            
+
+            // Mid-Term Assessment Date Submission
+            document.getElementById("midtermAssessmentForm")?.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                let ethAddress = document.getElementById("eth_address").value;
+                let assessmentDate = document.getElementById("assessment_date").value;
+
+                fetch("/book_mid_crop_assessment", {
+                    method: "POST",
+                    body: JSON.stringify({ eth_address: ethAddress, date: assessmentDate }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();
+                })
+                .catch(error => console.error("Error:", error));
+            });
+
+            // Harvest Date Submission (NEW)
+            document.getElementById("harvestDateForm")?.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                let ethAddress = document.getElementById("eth_address").value;
+                let harvestDate = document.getElementById("harvest_date").value;
+
+                if (!harvestDate) {
+                    alert("Please select a valid harvest date.");
+                    return;
+                }
+
+                fetch("/book_harvest_date", {
+                    method: "POST",
+                    body: JSON.stringify({ eth_address: ethAddress, date: harvestDate }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();
+                })
+                .catch(error => console.error("Error:", error));
+            });
+
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            };
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("harvestDateForm")?.addEventListener("submit", function(event) {
+                event.preventDefault();
+        
+                let ethAddress = document.getElementById("eth_address").value;
+                let harvestDate = document.getElementById("harvest_date").value;
+        
+                fetch("/book_harvest_date", {
+                    method: "POST",
+                    body: JSON.stringify({ eth_address: ethAddress, date: harvestDate }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    window.location.reload();
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+        </script>
+
+        
+
+
+
+</body>
+</html>

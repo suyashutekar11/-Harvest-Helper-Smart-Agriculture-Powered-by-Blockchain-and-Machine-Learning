@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Grading & Pricing</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            gap: 30px; /* Increased spacing */
+            max-width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+        .image-box {
+            width: 90%; /* Increased width */
+            max-width: 800px; /* Increased max-width */
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Stronger shadow for better aesthetics */
+            transition: transform 0.3s ease-in-out;
+        }
+        .image-box:hover {
+            transform: scale(1.05); /* Slightly stronger hover effect */
+        }
+        .image-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .image-box {
+                width: 95%;
+                max-width: 600px; /* Adjust for smaller screens */
+            }
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #218c53;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">⬅ Back</button>
+
+    <div class="container">
+        <div class="image-box">
+            <img src="{{ url_for('static', filename='image/image1.png') }}" alt="Crop Grading and Pricing 1">
+        </div>
+        <div class="image-box">
+            <img src="{{ url_for('static', filename='image/image2.png') }}" alt="Crop Grading and Pricing 2">
+        </div>
+    </div>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

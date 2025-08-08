@@ -1,0 +1,42 @@
+{% extends "base_admin.html" %}
+
+{% block title %}
+Manage Review Team
+{% endblock %}
+
+{% block content %}
+<div class="manage-review-page">
+    <h1>Manage Review Team</h1>
+    <div class="separator"></div>
+
+    <!-- Form to add a new review team member -->
+    <h2>Add New Review Team Member</h2>
+    <form action="{{ url_for('manage_reviewteam') }}" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <button type="submit">Add Member</button>
+    </form>
+    <div class="separator"></div>
+
+    <!-- Display list of all review team members -->
+    <h2>Review Team Members</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in reviewteam_members %}
+            <tr>
+                <td>{{ member.username }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

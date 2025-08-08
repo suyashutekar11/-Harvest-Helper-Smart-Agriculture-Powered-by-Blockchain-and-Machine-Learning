@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='status.css') }}">
+</head>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', // Default language
+        includedLanguages: 'en,hi,mr' // Languages you want to support
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<body>
+    <div id="google_translate_element"></div>
+
+    <div class="container">
+        <h2>Crop Application Status</h2>
+
+        {% if application %}
+        <div class="application-details">
+            <p><strong>Crop Name:</strong> {{ application['crop_details'].get('cropName', 'N/A') }}</p>
+            <p><strong>Crop Type:</strong> {{ application['crop_details'].get('cropType', 'N/A') }}</p>
+            <p><strong>Sow Date:</strong> {{ application['crop_details'].get('sowDate', 'N/A') }}</p>
+            <p><strong>Harvest Date:</strong> {{ application['crop_details'].get('harvestDate', 'N/A') }}</p>
+            <p><strong>District:</strong> {{ application['crop_details'].get('district', 'N/A') }}</p>
+            <p><strong>User Name:</strong> {{ application['farmer_details'].get('username', 'N/A') }}</p>
+            <p><strong>Residential Address:</strong> {{ application['farmer_details'].get('userAddress', 'N/A') }}</p>
+            <p><strong>ETH Address:</strong> {{ application.get('ETH_ADDRESS', 'N/A') }}</p>
+            <p><strong>Blockchain Transaction ID:</strong> {{ application.get('blockchain_id', 'N/A') }}</p>
+            <p><strong>Status:</strong> <span id="status-text">{{ application.get('status', 'Pending') }}</span></p>
+
+            {% if 'Grade Given' in application.get('status', '') %}
+                <p><strong>Grade:</strong> {{ application.get('grade', '-') }}</p>
+            {% endif %}
+        </div>
+
+        {% endif %}
+        {% if not application %}
+        <script>
+            (function() {
+                alert("No applications found.");
+                window.location.href = "{{ url_for('user_dashboard') }}";
+            })();
+        </script>
+        {% endif %}
+
+        <!-- Progress Bar with Circles -->
+<!-- Progress Bar with Circles -->
+<div class="progress-container">
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-steps">
+        <div class="step"><div class="circle"></div> Submitted</div>
+        <div class="step"><div class="circle"></div> Application Under Review</div>
+        <div class="step"><div class="circle"></div> Application Under Mid-Term Review</div>
+        <div class="step"><div class="circle"></div> Details Verified Successfully</div>
+        <div class="step">
+            <div class="circle"></div> 
+            Mid Crop Assessment Done and Grade Given: <span id="midterm-grade">{{ application.get('grade', '-') }}</span>
+        </div>
+        <div class="step">
+            <div class="circle"></div> 
+            Application Accepted, Grade: <span id="final-grade">-</span>, Rate: <span id="rate">-</span> Rs/kg, Quantity: <span id="quantity">-</span> kg
+        </div>
+    </div>
+</div>
+
+
+        <!-- Back to Dashboard Button -->
+        <a href="/user_dashboard" class="back-button">Back to Dashboard</a>
+    </div>
+
+    <script>
+        window.onload = function () {
+            const status = "{{ application.get('status', 'Pending') }}".trim();
+            
+            // Extract grade from the status message using regex
+            let grade = "{{ application.get('grade', '-') }}".trim();
+            if (grade === "-") {
+                let gradeMatch = status.match(/Grade Given is: ([A-C])/);  // Looks for "Grade Given is: A/B/C"
+                grade = gradeMatch ? gradeMatch[1] : "-";
+            }
+            // Extract rate and quantity
+            let rateMatch = status.match(/rate assigned per kg is (\d+)/);
+            let quantityMatch = status.match(/quantity (\d+)/);
+        
+            let rate = rateMatch ? rateMatch[1] : "-";
+            let quantity = quantityMatch ? quantityMatch[1] : "-";
+        
+            // Define status stages
+            const statusStages = [
+                "Submitted",
+                "Application Under Review",
+                "Application Under Mid-Term Review",
+                "Details Verified Successfully",
+                "Mid Crop Assessment Done Successfully and Grade Given is",
+                "Application is accepted and Grade given is"
+            ];
+        
+            // Find the current stage in statusStages
+            let currentStage = statusStages.findIndex(stage => status.includes(stage));
+        
+            // Update grade placeholders in the progress bar
+            document.getElementById("midterm-grade").innerText = grade;
+            document.getElementById("final-grade").innerText = grade;
+            document.getElementById("rate").innerText = rate;
+            document.getElementById("quantity").innerText = quantity;
+        
+            // If midterm assessment is completed, update the step dynamically
+            let midtermStep = document.querySelector(".step:nth-child(5)");  // 5th step in the list
+            if (midtermStep && grade !== "-") {
+                midtermStep.innerHTML = `<div class="circle"></div> Mid Crop Assessment Done and Grade Given: ${grade}`;
+            }
+        
+            // Calculate progress width
+            if (currentStage >= 0) {
+                let progressPercentage = (currentStage / (statusStages.length - 1)) * 100;
+                document.getElementById("progress-fill").style.width = `${progressPercentage}%`;
+            }
+        
+            // Mark completed steps
+            let steps = document.querySelectorAll(".step");
+            let circles = document.querySelectorAll(".circle");
+        
+            steps.forEach((step, index) => {
+                if (index <= currentStage) {
+                    step.classList.add("completed");
+                    circles[index].classList.add("completed-circle");
+                }
+            });
+        
+            // Change status text color based on progress
+            let statusText = document.getElementById("status-text");
+            if (status.includes("accepted") || status.includes("Grade Given")) {
+                statusText.style.color = "green";
+            } else if (status.includes("Under Review") || status.includes("Scheduled")) {
+                statusText.style.color = "orange";
+            } else {
+                statusText.style.color = "red";
+            }
+        };
+        
+    </script>
+</body>
+</html>

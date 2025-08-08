@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Harvest Helper</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='style/myhome.css')}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Translate API Script -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en', // Default language
+          includedLanguages: 'en,hi,mr' // Languages you want to support
+        }, 'google_translate_element');
+      }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script> 
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("processModal");
+    const btn = document.getElementById("know-process");
+    const closeBtn = document.querySelector(".close");
+
+    btn.addEventListener("click", function (event) {
+        event.preventDefault();
+        modal.style.display = "block";
+    });
+
+    closeBtn.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    window.addEventListener("click", function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    });
+});
+
+</script>
+</head>
+<body>
+  <div id="google_translate_element"></div>
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <a href="#">Harvest Helpers</a>
+      </div>
+      <ul class="navbar-nav">
+        <!-- <li class="nav-item"><a href="#">Home</a></li>-->
+        <li class="nav-item"><a href="#" id="know-process">Know The Process</a></li>
+
+        <li class="nav-item"><a href="/about_us">About Us</a></li>
+        <li class="nav-item"><a href="/contact">Contact Us</a></li>
+        {% if user_first_name %}
+        <li class="nav-item dropdown">
+          <a href="#" class="nav-item">{{ user_first_name }}</a>
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-item" id="manage-profile">Manage Profile</a>
+          </li>
+            <li class="nav-item"><a href="/logout">Logout</a></li>
+        </li>
+        {% else %}
+        <li class="nav-item"><a href="/login">Login</a></li>
+        <li class="nav-item"><a href="/register">Register</a></li>
+        {% if user_first_name == None %}
+        <li class="nav-item"><a href="/admin_login">Admin Login</a></li>
+        {% endif %}
+        {% if user_first_name == None %}
+        <li class="nav-item"><a href="/revlogin">Review Team</a></li>
+        {% endif %}
+        {% endif %}
+      </ul>
+      <div class="navbar-toggler">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+  <div class="scrolling-banner">
+    <a href="https://soilhealth.dac.gov.in/home" target="blank">GET YOUR SOIL TESTED CLICK HERE</a>
+  </div>
+  <main>
+    <div id="processModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <img src="{{ url_for('static', filename='Select_the_date.png') }}" alt="Process Image" class="process-image">
+      </div>
+    </div>
+    
+    <div class="card-container">
+
+      <div class="card">
+          <img src="static/style/recommendation card.png" alt="Crops" class="card-image">
+          <p>Click the below button to discover the best crops for your farm.</p>
+          <form action="/Predict">
+              <input type="submit" id="Predict" name="Predict" value="Get Started →" class="btn btn-primary">
+          </form>
+      </div>
+      <div class="card"> 
+          <img src="static/style/fetilizers card.jpg" alt="Fertilizer" class="card-image">
+          <p>Click the below button to find the ideal fertilizer for your farm.</p>
+          <a href="{% if user_first_name %}/fertilizer{% else %}/login{% endif %}" class="btn btn-primary">Get Started →</a>
+      </div>
+      <div class="card">
+        <img src="static/style/crop sell card.jpg" alt="Sell Crop" class="card-image">
+        <p>Click the button below to sell your crop at the best price.</p>
+        <a href="/sell_crop" class="btn btn-primary">Get Started →</a>
+    </div>
+    
+    
+    
+  </div>
+  
+      
+  </main>
+  <script src="{{url_for('static', filename='script/script.js')}}"></script>
+  <div id="profileModal" style="display:none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0; 
+  top: 0; 
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.5); 
+  padding-top: 60px;">
+
+  <div style="background-color: #fff; 
+      margin: auto; 
+      padding: 30px; 
+      border: 1px solid #888; 
+      width: 400px; 
+      border-radius: 12px; 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+      position: relative;">
+  
+    <!-- Close Button -->
+    <span class="close-profile" style="position: absolute; 
+        top: 10px; 
+        right: 15px; 
+        color: #aaa; 
+        font-size: 28px; 
+        font-weight: bold; 
+        cursor: pointer;">&times;</span>
+
+    <!-- Modal Content -->
+    <h2 style="text-align:center; margin-bottom: 20px; font-family: 'Montserrat', sans-serif;">Manage Profile</h2>
+
+    {% if subscription_status == 'Active' %}
+    <p><strong>Subscription:</strong> 
+        <span style="color: green;">{{ user.subscription.capitalize() }}</span>
+    </p>
+    <p><strong>Start Date:</strong> 
+        {{ user.subscription_date.strftime('%d-%b-%Y') if user.subscription_date else 'N/A' }}
+    </p>
+    <p><strong>End Date:</strong> 
+        {{ user.subscription_expiry.strftime('%d-%b-%Y') if user.subscription_expiry else 'N/A' }}
+    </p>
+    {% else %}
+    <p style="color:red;"><strong>You are not subscribed.</strong></p>
+    {% endif %}
+
+    <hr style="margin:20px 0;">
+
+    <!-- Password Change Form -->
+    <form id="changePasswordForm" method="POST">
+        <label style="font-weight: bold;">Current Password:</label><br>
+        <input type="password" id="current_password" name="current_password" required style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px;"><br>
+
+        <label style="font-weight: bold;">New Password:</label><br>
+        <input type="password" id="new_password" name="new_password" required style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 6px;"><br>
+
+        <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+            Change Password
+        </button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const profileModal = document.getElementById("profileModal");
+    const manageProfileBtn = document.getElementById("manage-profile");
+    const closeProfileBtn = document.querySelector(".close-profile");
+    const form = document.getElementById("changePasswordForm");
+
+    if (manageProfileBtn) {
+      manageProfileBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          profileModal.style.display = "block";
+      });
+    }
+
+    closeProfileBtn.addEventListener("click", function () {
+      profileModal.style.display = "none";
+    });
+
+    window.addEventListener("click", function (event) {
+      if (event.target == profileModal) {
+        profileModal.style.display = "none";
+      }
+    });
+
+    // Handle password form submission
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();  // Prevent normal form submit
+        const formData = new FormData(form);
+        
+        const response = await fetch("/change_password_user", {
+            method: "POST",
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);  // Password updated
+            window.location.reload();  // Reload the page
+        } else {
+            alert(data.message);  // Show incorrect password
+        }
+    });
+});
+</script>
+
+    
+
+</body>
+</html>

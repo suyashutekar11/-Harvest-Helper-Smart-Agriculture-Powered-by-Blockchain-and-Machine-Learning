@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Transaction Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        ul {
+            list-style-type: none;
+        }
+        li {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Ethereum Transaction Viewer (Ganache)</h2>
+
+    <label>Enter Ethereum Address:</label>
+    <input type="text" id="ethAddress" placeholder="0x123...">
+    <button onclick="getTransactions()">Get Transactions</button>
+
+    <h3>Transactions:</h3>
+    <ul id="transactionList"></ul>
+
+    <script>
+        // Connect to Ganache
+        const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
+
+        // Contract ABI for decoding transactions
+        const contractABI = [
+            {
+                "name": "submitApplication",
+                "type": "function",
+                "inputs": [
+                    { "name": "cropName", "type": "string" },
+                    { "name": "cropType", "type": "string" },
+                    { "name": "sowDate", "type": "uint256" },
+                    { "name": "harvestDate", "type": "uint256" },
+                    { "name": "district", "type": "string" },
+                    { "name": "username", "type": "string" },
+                    { "name": "userAddress", "type": "string" },
+                    { "name": "contactNumber", "type": "string" },
+                    { "name": "landOwnerName", "type": "string" },
+                    { "name": "landSurveyNumber", "type": "string" }
+                ]
+            },
+            {
+                "name": "assignRate",
+                "type": "function",
+                "inputs": [
+                    { "name": "cropId", "type": "uint256" },
+                    { "name": "ratePerKg", "type": "uint256" },
+                    { "name": "quantity", "type": "uint256" }
+                ]
+            }
+        ];
+
+        async function getTransactions() {
+            const address = document.getElementById("ethAddress").value.trim().toLowerCase();
+            if (!web3.utils.isAddress(address)) {
+                alert("Invalid Ethereum Address!");
+                return;
+            }
+
+            const latestBlock = await web3.eth.getBlockNumber();
+            let transactionsHTML = "";
+
+            for (let i = latestBlock; i >= 0; i--) {
+                try {
+                    let block = await web3.eth.getBlock(i, true);
+                    if (block && block.transactions.length > 0) {
+                        block.transactions.forEach((tx) => {
+                            if (tx.from.toLowerCase() === address || (tx.to && tx.to.toLowerCase() === address)) {
+                                let decodedInput = "No Input Data";
+                                let functionName = "Unknown Function";
+
+                                if (tx.input !== "0x") {
+                                    try {
+                                        const functionSelector = tx.input.slice(0, 10);
+                                        let method = contractABI.find(fn => functionSelector === web3.eth.abi.encodeFunctionSignature(fn));
+
+                                        if (method) {
+                                            functionName = method.name;
+                                            const decodedParams = web3.eth.abi.decodeParameters(method.inputs, tx.input.slice(10));
+
+                                            if (method.name === "submitApplication") {
+                                                decodedInput = `
+                                                    <strong>Function:</strong> submitApplication <br>
+                                                    <strong>Crop Name:</strong> ${decodedParams[0]} <br>
+                                                    <strong>Crop Type:</strong> ${decodedParams[1]} <br>
+                                                    <strong>Sow Date:</strong> ${new Date(decodedParams[2] * 1000).toLocaleDateString()} <br>
+                                                    <strong>Harvest Date:</strong> ${new Date(decodedParams[3] * 1000).toLocaleDateString()} <br>
+                                                    <strong>District:</strong> ${decodedParams[4]} <br>
+                                                    <strong>Username:</strong> ${decodedParams[5]} <br>
+                                                    <strong>User Address:</strong> ${decodedParams[6]} <br>
+                                                    <strong>Contact Number:</strong> ${decodedParams[7]} <br>
+                                                    <strong>Land Owner Name:</strong> ${decodedParams[8]} <br>
+                                                    <strong>Land Survey Number:</strong> ${decodedParams[9]} <br>
+                                                `;
+                                            } else if (method.name === "assignRate") {
+                                                decodedInput = `
+                                                    <strong>Function:</strong> assignRate <br>
+                                                    <strong>Crop ID:</strong> ${decodedParams[0]} <br>
+                                                    <strong>Rate Per KG:</strong> ${web3.utils.fromWei(decodedParams[1], 'ether')} ETH <br>
+                                                    <strong>Quantity:</strong> ${decodedParams[2]} KG <br>
+                                                `;
+                                            }
+                                        }
+                                    } catch (decodeError) {
+                                        console.error("Decoding Error:", decodeError);
+                                    }
+                                }
+
+                                transactionsHTML += `
+                                    <li>
+                                        <strong>Hash:</strong> ${tx.hash} <br>
+                                        <strong>Block:</strong> ${tx.blockNumber} <br>
+                                        <strong>From:</strong> ${tx.from} <br>
+                                        <strong>To:</strong> ${tx.to ? tx.to : "Contract Deployment"} <br>
+                                        <strong>Value:</strong> ${web3.utils.fromWei(tx.value, 'ether')} ETH <br>
+                                        <strong>Gas:</strong> ${tx.gas} <br>
+                                        ${decodedInput} <br>
+                                        <hr>
+                                    </li>`;
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error fetching block ${i}:`, error);
+                }
+            }
+
+            document.getElementById("transactionList").innerHTML = transactionsHTML || "<li>No transactions found.</li>";
+        }
+    </script>
+
+</body>
+</html>

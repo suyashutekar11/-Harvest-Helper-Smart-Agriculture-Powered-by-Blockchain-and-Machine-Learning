@@ -1,0 +1,27 @@
+/* static/styles.css */
+body {
+    background: url('{{ url_for("static", filename="admin.jpg") }}') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background-color: rgba(255, 255, 255, 0.8); /* Table background transparency */
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+h2 {
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    text-align: center;
+}

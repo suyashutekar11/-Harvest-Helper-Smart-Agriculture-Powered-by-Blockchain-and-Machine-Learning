@@ -1,0 +1,23 @@
+{% extends 'Reviewteam.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1>Please Don't Keep Work Pending.</h1>
+
+  <!-- Cards Section -->
+  <div class="card-container">
+    <div class="card">
+      <h3 class="card-title">New Applications</h3>
+      <p class="card-text">Total Applications: {{ application_count }}</p>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Applications For Mid Term Check</h3>
+      <p class="card-text">This is the content of Card 2.</p>
+    </div>
+    <div class="card card-full-width">
+      <h3 class="card-title">Applications For Harvest</h3>
+      <p class="card-text">This is the content of Card 3.</p>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <!-- Google Font and Styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='style/login.css')}}">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url('{{ url_for('static', filename='style/image.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        #google_translate_element {
+            position: fixed;
+            top: 130px;
+            right: 0;
+            margin: 10px; /* Adjust the margin if needed */
+            z-index: 1000; /* Ensure it stays on top of other content */
+          }
+        .login-form {
+            background: rgba(255, 255, 255, 0.9);
+            width: 400px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .forgot-password {
+            display: flex;
+            align-items: center;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .icon {
+            margin-right: 8px;
+        }
+    </style>
+
+    <script>
+        // Disable paste for the password field
+        function disablePaste(event) {
+            event.preventDefault();
+            alert("Pasting is not allowed in the password field.");
+        }
+    </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en', // Default language
+            includedLanguages: 'en,hi,mr' // Languages you want to support
+          }, 'google_translate_element');
+        }
+      </script>
+      <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <div id="google_translate_element"></div>
+
+    <form method="post" action="/login" class="login-form">
+        <h2>Login</h2>
+        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required onpaste="disablePaste(event)">
+
+        <input type="submit" value="Login">
+        
+        <a class="forgot-password" href="/forgot_password">
+            <span class="icon">🔒</span>Forgot Password?
+        </a>
+    </form>
+</body>
+</html>

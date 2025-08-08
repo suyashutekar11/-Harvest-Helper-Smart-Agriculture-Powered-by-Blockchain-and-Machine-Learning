@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Orders - Admin Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Admin Dashboard Container */
+        .admin-dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5em;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Order Container */
+        .order-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Order Card */
+        .order-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4CAF50; /* Green border */
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .order-status.pending {
+            background-color: #FF9800;
+            color: #fff;
+        }
+
+        .order-status.completed {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .order-status.cancelled {
+            background-color: #F44336;
+            color: #fff;
+        }
+
+        /* Order Details */
+        .order-details {
+            margin-top: 20px;
+        }
+
+        .order-detail {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .order-detail strong {
+            color: #555;
+        }
+
+        /* Responsive Design for small screens */
+        @media screen and (max-width: 768px) {
+            .admin-dashboard-container {
+                padding: 15px;
+            }
+
+            .order-card {
+                padding: 15px;
+            }
+
+            .order-detail {
+                font-size: 1em;
+            }
+
+            .order-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Admin Page Header -->
+        <div class="page-header">
+            <h1>Ecommerce Orders</h1>
+        </div>
+
+        <!-- Dynamic Content -->
+        <div class="content">
+            {% block content %}
+            <!-- Dynamic content for orders will be placed here -->
+            <div class="order-container">
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">Order ID: {{ order['_id'] }}</span>
+                        <span class="order-status {{ order['status'] | lower }}">{{ order['status'] }}</span>
+                    </div>
+
+                    <div class="order-details">
+                        <div class="order-detail">
+                            <strong>Buyer Username:</strong> {{ order['buyer_username'] }}
+                        </div>
+                        <div class="order-detail">
+                            <strong>Crop Name:</strong> {{ order['crop_name'] }}
+                        </div>
+                        <div class="order-detail">
+                            <strong>Quantity:</strong> {{ order['quantity'] }} KG
+                        </div>
+                        <div class="order-detail">
+                            <strong>Total Price:</strong> ₹ {{ order['total_price'] }}
+                        </div>
+                        <div class="order-detail">
+                            <strong>Location:</strong> {{ order['location'] }}
+                        </div>
+                        <div class="order-detail">
+                            <strong>Order Date:</strong> {{ order['order_date'] }}
+                        </div>
+                        <div class="order-detail">
+                            <strong>Delivery Estimate:</strong> {{ order['delivery_estimate'] }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>

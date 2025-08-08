@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Sale of New Crop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='applysaleform.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en', // Default language
+        includedLanguages: 'en,hi,mr' // Languages you want to support
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<body>
+    <div id="google_translate_element"></div>
+
+<!-- Toast Container for Messages -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<form action="{{ url_for('submit_crop') }}" method="POST">
+    <h1>Apply for Sale of New Crop</h1>
+
+    <label for="crop_name">Crop Name:</label>
+    <select id="crop_name" name="crop_name" required>
+        <option value="wheat">Wheat</option>
+        <option value="rice">Rice</option>
+        <option value="pulses">Pulses</option>
+        <option value="millets">Millets</option>
+        <option value="onion">Onion</option>
+    </select>
+
+    <label for="crop_type">Type of Crop:</label>
+    <select id="crop_type" name="crop_type" required></select>
+
+    <div class="date-section">
+        <div class="date-field">
+            <label for="sow_date">Sowing Date:</label>
+            <input type="date" id="sow_date" name="sow_date" required>
+        </div>
+    
+        <div class="date-field">
+            <label for="harvest_date">Harvest Date:</label>
+            <input type="date" id="harvest_date" name="harvest_date" required>
+        </div>
+    </div>
+
+    <label for="state">State:</label>
+    <select id="state" name="state" required></select>
+
+    <label for="district">District:</label>
+    <input type="text" id="district" name="district" required>
+
+    <label for="USER_ADDRESS">Residential Address:</label>
+    <textarea id="USER_ADDRESS" name="USER_ADDRESS" required></textarea>
+
+    <label for="land_ownership">Do you own the land?</label>
+    <div class="radio-group">
+        <label>
+            <input type="radio" id="own_yes" name="land_ownership" value="yes" required>
+            <div class="radio-custom"></div>
+            <span>Yes</span>
+        </label>
+        
+        <label>
+            <input type="radio" id="own_no" name="land_ownership" value="no">
+            <div class="radio-custom"></div>
+            <span>No</span>
+        </label>
+    </div>
+
+    <div id="own_land_section" style="display: none;">
+        <label for="survey_number">Land Survey Number:</label>
+        <input type="text" id="survey_number" name="survey_number" >
+
+        <label for="contact_number">Your Contact Number:</label>
+        <input type="tel" id="contact_number" name="contact_number" pattern="\d{10}" maxlength="10" title="Please enter a valid 10-digit phone number" >
+    </div>
+
+    <div id="rent_land_section" style="display: none;">
+        <label for="land_owner_name">Land Owner Name:</label>
+        <input type="text" id="land_owner_name" name="land_owner_name" >
+
+        <label for="land_owner_contact_number">Land Owner Contact Number:</label>
+        <input type="tel" id="land_owner_contact_number" name="land_owner_contact_number" pattern="\d{10}" maxlength="10" title="Please enter a valid 10-digit phone number" >
+    </div>
+
+    <button type="submit">Submit Application</button>
+</form>
+
+<script>
+    const cropData = {
+        rice: ["Basmati", "Sona Masuri", "Ponni", "Jyothi", "IR-64"],
+        wheat: ["PBW 343", "HD-2985", "WL 758", "HD-2967", "PBW 502"],
+        pulses: ["Urad Dal", "Masoor Dal", "Moong Dal", "Chana Dal", "Rajma"],
+        millets: ["Jowar", "Bajra", "Ragi", "Foxtail Millet", "Barnyard Millet"],
+        onion: ["H-1", "N-5", "K-1", "Pusa Red", "Nasik Red"]
+    };
+
+    const cropName = document.getElementById('crop_name');
+    const cropType = document.getElementById('crop_type');
+    const ownYes = document.getElementById('own_yes');
+    const ownNo = document.getElementById('own_no');
+    const ownLandSection = document.getElementById('own_land_section');
+    const rentLandSection = document.getElementById('rent_land_section');
+
+    cropName.addEventListener('change', function () {
+        const selectedCrop = this.value;
+        cropType.innerHTML = '';
+
+        cropData[selectedCrop].forEach(function (type) {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            cropType.appendChild(option);
+        });
+    });
+
+    window.onload = function () {
+        cropName.dispatchEvent(new Event('change'));
+        populateStates();
+
+        // Show Toast on load if available
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                var toastEl = document.getElementById('liveToast');
+                var toastBody = toastEl.querySelector('.toast-body');
+                toastBody.textContent = "{{ message }}";
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            {% endfor %}
+        {% endwith %}
+    };
+
+    ownYes.addEventListener('click', function () {
+        ownLandSection.style.display = 'block';
+        rentLandSection.style.display = 'none';
+    });
+
+    ownNo.addEventListener('click', function () {
+        ownLandSection.style.display = 'none';
+        rentLandSection.style.display = 'block';
+    });
+
+    const states = [
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+        "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+        "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+        "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+        "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+    ];
+
+    function populateStates() {
+        const stateSelect = document.getElementById('state');
+        stateSelect.innerHTML = '<option value="">Select State</option>'; 
+
+        states.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state;
+            option.textContent = state;
+            stateSelect.appendChild(option);
+        });
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

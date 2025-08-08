@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .cart-item {
+            margin-bottom: 20px;
+        }
+        .cart-item img {
+            max-width: 100px;
+        }
+        .cart-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="my-4">Your Cart</h1>
+
+    {% if not cart %}
+        <div class="alert alert-info" role="alert">
+            Your cart is empty!
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                {% for eth_address, item in cart.items() %}
+                    <div class="cart-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex">
+                            <div>
+                                <h5>{{ item['crop_name'] }}</h5>
+                                <p>{{ item['district'] }}</p>
+                                <p>₹{{ item['per_kg_rate'] }} per kg</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="btn btn-outline-primary btn-sm mr-2" onclick="updateQuantity('{{ eth_address }}', {{ item['quantity'] }}, -10)">-</button>
+                            <input type="number" id="quantity_{{ eth_address }}" name="quantity_{{ eth_address }}" value="{{ item['quantity'] }}" class="form-control form-control-sm text-center" style="width: 60px;" readonly>
+                            <button type="button" class="btn btn-outline-primary btn-sm ml-2" onclick="updateQuantity('{{ eth_address }}', {{ item['quantity'] }}, 10)">+</button>
+                        </div>
+
+                        <!-- Remove button in its own form -->
+                        <form action="/remove_from_cart" method="POST" style="display:inline;">
+                            <input type="hidden" name="eth_address" value="{{ eth_address }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Checkout form (separate) -->
+        <form action="/checkout" method="POST" class="mt-4">
+            <div class="d-flex justify-content-between my-4">
+                <h3>Total: <span class="cart-total">{{ total_price }}</span></h3>
+                <button type="submit" class="btn btn-success">Proceed to Checkout</button>
+            </div>
+        </form>
+    {% endif %}
+
+    <!-- Address form (separate) -->
+    <h3>Delivery Address</h3>
+    <form action="/checkout" method="POST">
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" class="form-control" placeholder="Enter your delivery address" required>
+        </div>
+        <div class="form-group">
+            <label for="contact_number">Contact Number</label>
+            <input type="text" id="contact_number" name="contact_number" class="form-control" placeholder="Enter your contact number" required>
+        </div>
+        <button type="submit" class="btn btn-success">Place Order</button>
+    </form>
+</div>
+
+<script>
+    function updateQuantity(ethAddress, currentQuantity, change) {
+        var newQuantity = currentQuantity + change;
+        if (newQuantity >= 0) {
+            // Send the updated quantity to the backend
+            fetch(`/update_cart/${ethAddress}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: newQuantity })
+            })
+            .then(response => {
+                // Check if response is OK (status 200-299)
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update the quantity in the UI
+                    var quantityInput = document.getElementById(`quantity_${ethAddress}`);
+                    quantityInput.value = newQuantity; // Update input field with new value
+
+                    // Update the total price dynamically
+                    document.querySelector('.cart-total').innerText = `₹${data.total_price}`;
+                } else {
+                    alert(data.message); // Show an error message from the backend
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An unexpected error occurred!');
+            });
+        }
+    }
+</script>
+
+</body>
+</html>

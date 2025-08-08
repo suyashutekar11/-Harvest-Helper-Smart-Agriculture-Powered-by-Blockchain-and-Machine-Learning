@@ -1,0 +1,155 @@
+{% extends 'Reviewteam.html' %}
+
+{% block title %}Harvest Applications{% endblock %}
+    {% block content %}
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3b5998; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .btn { background-color: green; color: white; padding: 5px 10px; border: none; cursor: pointer; }
+        .btn:hover { background-color: darkgreen; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+        .close { color: red; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: darkred; }
+        input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+
+<h2>Harvest Applications</h2>
+
+<table>
+    <tr>
+        <th>Username</th>
+        <th>ETH Address</th>
+        <th>Crop Name</th>
+        <th>Action</th>
+    </tr>
+    {% for app in applications %}
+    <tr>
+        <td>{{ app.farmer_details.username }}</td>
+        <td>{{ app.eth_address }}</td>
+        <td>{{ app.crop_details.cropName }}</td>
+        <td>
+            <button class="btn" onclick="showDetails(
+                '{{ app.application_id }}', 
+                '{{ app.crop_details.cropName }}',
+                '{{ app.crop_details.cropType }}',
+                '{{ app.crop_details.sowDate }}',
+                '{{ app.harvest_date }}',
+                '{{ app.crop_details.district }}',
+                '{{ app.farmer_details.username }}',
+                '{{ app.farmer_details.userAddress }}',
+                '{{ app.farmer_details.contactNumber }}',
+                '{{ app.farmer_details.landOwnerName }}',
+                '{{ app.farmer_details.landSurveyNumber }}',
+                '{{ app.eth_address }}',
+                '{{ app.status }}'
+            )">Show Details</button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- Modal for Show Details -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>Application Details</h3>
+        <p><strong>Crop Name:</strong> <span id="modalCropName"></span></p>
+        <p><strong>Crop Type:</strong> <span id="modalCropType"></span></p>
+        <p><strong>Sow Date:</strong> <span id="modalSowDate"></span></p>
+        <p><strong>Harvest Date:</strong> <span id="modalHarvestDate"></span></p>
+        <p><strong>District:</strong> <span id="modalDistrict"></span></p>
+        <p><strong>Username:</strong> <span id="modalUsername"></span></p>
+        <p><strong>User Address:</strong> <span id="modalUserAddress"></span></p>
+        <p><strong>Contact Number:</strong> <span id="modalContactNumber"></span></p>
+        <p><strong>Land Owner Name:</strong> <span id="modalLandOwnerName"></span></p>
+        <p><strong>Land Survey Number:</strong> <span id="modalLandSurveyNumber"></span></p>
+        <p><strong>ETH Address:</strong> <span id="modalEthAddress"></span></p>
+        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+
+        <h3>Assign Rate Per KG</h3>
+        <form id="rateForm">
+            <input type="hidden" id="application_id">
+            <input type="hidden" id="eth_address"> <!-- ✅ ETH Address Stored Here -->
+            
+            <label for="rate">Rate per KG (in Rs):</label>
+            <input type="text" id="rate" oninput="validateNumberInput(this)" required>
+            
+            <label for="quantity">Quantity in KG:</label>
+            <input type="text" id="quantity" oninput="validateNumberInput(this)" required>
+            
+            <button type="button" id="submitRateBtn" class="btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showDetails(applicationId, cropName, cropType, sowDate, harvestDate, district, username, userAddress, contactNumber, landOwnerName, landSurveyNumber, ethAddress, status) {
+    document.getElementById("application_id").value = applicationId;
+    document.getElementById("eth_address").value = ethAddress; // ✅ Store ETH Address
+
+    document.getElementById("modalCropName").innerText = cropName;
+    document.getElementById("modalCropType").innerText = cropType;
+    document.getElementById("modalSowDate").innerText = sowDate;
+    document.getElementById("modalHarvestDate").innerText = harvestDate;
+    document.getElementById("modalDistrict").innerText = district;
+    document.getElementById("modalUsername").innerText = username;
+    document.getElementById("modalUserAddress").innerText = userAddress;
+    document.getElementById("modalContactNumber").innerText = contactNumber;
+    document.getElementById("modalLandOwnerName").innerText = landOwnerName;
+    document.getElementById("modalLandSurveyNumber").innerText = landSurveyNumber;
+    document.getElementById("modalEthAddress").innerText = ethAddress;
+    document.getElementById("modalStatus").innerText = status;
+    document.getElementById("detailsModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("detailsModal").style.display = "none";
+}
+
+document.getElementById("submitRateBtn").addEventListener("click", function() {
+    let applicationId = document.getElementById("application_id").value;
+    let ethAddress = document.getElementById("eth_address").value; // ✅ Get ETH Address
+    let ratePerKg = document.getElementById("rate").value;
+    let quantity = document.getElementById("quantity").value;
+
+    if (!applicationId || !ethAddress || !ratePerKg || !quantity) {
+        alert("Please enter all required fields.");
+        return;
+    }
+
+    fetch("/assign_per_kg_rate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            application_id: applicationId,
+            eth_address: ethAddress,
+            rate_per_kg: ratePerKg,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Rate assigned successfully. TxHash: " + data.txHash);
+            location.reload();
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+function validateNumberInput(input) {
+    input.value = input.value.replace(/[^0-9.]/g, '');
+}
+</script>
+
+{% endblock %}
+

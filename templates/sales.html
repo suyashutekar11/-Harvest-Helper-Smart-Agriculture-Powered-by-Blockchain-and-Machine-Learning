@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            width: 85%;
+            margin: auto;
+            padding: 20px;
+        }
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 16px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        .card h3 {
+            margin: 10px 0;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+        .card p {
+            color: #555;
+            font-size: 15px;
+            margin: 5px 0;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .buy-btn {
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            width: 95%;
+            margin: 15px auto 0; /* Centering the button */
+            background: #27ae60;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .card h3, 
+.card p, 
+.price, 
+.header, 
+.search-bar::placeholder, 
+.tag {
+    text-transform: uppercase; /* Apply uppercase to all important text */
+}
+        .buy-btn:hover {
+            background: #218c53;
+        }
+        .tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Crop Marketplace</div>
+
+    <div class="container">
+        <input type="text" class="search-bar" placeholder="Search crops...">
+
+        <div class="grid">
+            {% for crop in crops %}
+            <div class="card">
+                <span class="tag">Grade: {{ crop.grade }}</span>
+                <h3>{{ crop.crop_details.cropName }}</h3>
+                <p><strong>District:</strong> {{ crop.crop_details.district }}</p>
+                <p><strong>Available Quantity:</strong> {{ crop.quantity }} KG</p>
+                <p class="price">Rs. {{ crop.per_kg_rate }} per KG</p>
+                <a href="stages.html?ethAddress={{ crop.ethAddress }}" class="status-btn">
+                    <i class="fas fa-info-circle"></i> CHECK STATUS
+                </a>
+                
+                <a href="#" class="buy-btn"><i class="fas fa-shopping-cart"></i> Buy Now</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

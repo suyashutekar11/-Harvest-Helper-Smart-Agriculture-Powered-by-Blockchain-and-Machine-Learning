@@ -1,0 +1,353 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-image: url(one.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.navbar {
+  background-color: #343232; /* Changed to black */
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed; /* Fixed position */
+  top: 20px; /* Stick to the top */
+  left: auto;
+  width: 95%; /* Full width */
+  z-index: 1000; /* Ensure it stays on top of other elements */
+  border-radius: 15px;
+}
+
+.navbar-brand a {
+  color: white;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-nav {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nav-item {
+  margin-left: 20px;
+  position: relative;
+}
+
+.nav-item a {
+  color: rgb(200, 194, 194);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  padding: 10px 15px;
+  border-radius: 20px;
+  display: block;
+}
+
+.nav-item a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0 8px 16px 0 rgba(63, 62, 62, 0.2);
+  z-index: 1;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dropdown-menu li a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.navbar-toggler {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  cursor: pointer;
+}
+
+.navbar-toggler span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.hero {
+  padding: 80px 20px;
+  text-align: center;
+  color: rgb(43, 41, 41);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero h4 {
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.hero h3 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.hero h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.highlight {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #333633;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #b5bbb5;
+}
+
+.scrolling-banner {
+  position: fixed;
+  top: 100px;
+  left: 0;
+  width: 20%;
+  background-color: #ed880e;
+  color: #070606;
+  padding: 10px 20px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: scroll 20s linear infinite;
+  border-radius: 10px;
+}
+
+.scrolling-banner a {
+  color: #0c0b0b;
+  text-decoration: none;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+@media (max-width: 767px) {
+  .navbar-nav {
+    display: none;
+  }
+
+  .navbar-toggler {
+    display: flex;
+  }
+
+  .navbar-toggler.active span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  .navbar-toggler.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .navbar-toggler.active span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
+  .navbar-nav.active {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: rgba(51, 51, 51, 0.9);
+    padding: 20px;
+    z-index: 1;
+  }
+
+  .nav-item {
+    margin-left: 0;
+    margin-bottom: 10px;
+  }
+
+  .nav-item a {
+    padding: 10px;
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    background-color: transparent;
+    margin-top: 10px;
+  }
+}
+
+.container {
+  display: flex;
+  justify-content: center; /* Center the row of cards horizontally */
+  align-items: center; /* Center the row of cards vertically */
+  gap: 20px; /* Space between cards */
+  max-width: 1200px; /* Set a max width for better responsiveness */
+  padding: 20px;
+  margin-top: 80px; /* Adjust to be below the fixed navbar */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px; /* Space between cards */
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping to the next row if there isn't enough space */
+  justify-content: center; /* Center the cards horizontally */
+  gap: 20px; /* Space between cards */
+  padding: 20px; /* Optional: Add padding around the container */
+}
+
+.card {
+  background-color: white;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  width: 400px; /* Adjust the card width as needed */
+  height: auto; /* Allow card height to adjust based on content */
+  box-shadow: 0px 4px 6px rgba(135, 2, 2, 0.1);
+}
+
+.card-image {
+  width: 300px; /* Adjust the image size as needed */
+  height: 200px; /* Maintain aspect ratio */
+  object-fit: cover; /* Ensure image covers the area without distortion */
+  margin-bottom: 15px; /* Space between image and text */
+  /* Optional: make the image circular */
+  border-radius: 10px; /* Rounded corners for image */
+}
+
+.card p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.card .btn {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none; /* Remove the underline */
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.card .btn:hover {
+  background-color: #0852c9;
+  text-decoration: none; /* Ensure no underline on hover */
+}
+
+
+#google_translate_element {
+  position: fixed;
+  top: 130px;
+  right: 0;
+  margin: 10px; /* Adjust the margin if needed */
+  z-index: 1000; /* Ensure it stays on top of other content */
+}
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.process-image {
+  width: 100%;
+  max-width: 1100px; /* Increased max width */
+  height: auto;
+}
+
+.modal-content {
+  margin: 5% auto; /* Reduce margin to make space */
+  padding: 20px;
+  background: white;
+  width: 95%; /* Increase modal width */
+  max-width: 1200px; /* Ensure modal expands */
+  border-radius: 10px;
+  text-align: center;
+}
+
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  cursor: pointer;
+  color: black;
+}

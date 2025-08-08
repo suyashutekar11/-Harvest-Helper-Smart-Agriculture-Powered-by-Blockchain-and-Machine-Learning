@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Application Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        * {
+            text-transform: uppercase;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 80%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .loading {
+            display: none;
+            color: #ff9800;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        .section {
+            text-align: left;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f9f9f9;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .section h3 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .section p {
+            margin: 6px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Crop Application Tracker</h2>
+        <div style="display: none;">
+            <input type="text" id="ethAddress" placeholder="Enter Ethereum Address">
+            <button onclick="fetchDetails()">Get Details</button>
+        </div>
+        
+        <p class="loading" id="loading">Loading...</p>
+        <p class="error" id="error"></p>
+
+        <div class="section" id="cropDetailsSection">
+            <h3>Crop Details</h3>
+            <div id="cropDetails"></div>
+        </div>
+
+        <div class="section" id="gradingDetailsSection">
+            <h3>Grading Details</h3>
+            <div id="gradingDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const CONTRACT_ADDRESS = "0x263c41BE20C1f4201b8B105ea5477bC7112f6e73";
+        const RPC_URL = "http://127.0.0.1:7545";
+        const web3 = new Web3(new Web3.providers.HttpProvider(RPC_URL));
+
+        async function loadContractABI() {
+            try {
+                const response = await fetch("/static/contracts/CropApplication.json");
+                if (!response.ok) {
+                    throw new Error(`Failed to load ABI file. HTTP status: ${response.status}`);
+                }
+                const contractData = await response.json();
+                return contractData.abi;
+            } catch (error) {
+                console.error("Error loading ABI:", error);
+                document.getElementById("error").innerText = "Failed to load contract ABI. Check console for details.";
+            }
+        }
+        
+
+        async function fetchDetails() {
+            const ethAddress = document.getElementById("ethAddress").value.trim();
+            if (!web3.utils.isAddress(ethAddress)) {
+                document.getElementById("error").innerText = "Invalid Ethereum address!";
+                return;
+            }
+
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("error").innerText = "";
+            document.getElementById("cropDetails").innerHTML = "";
+            document.getElementById("gradingDetails").innerHTML = "";
+
+            await fetchCropDetails(ethAddress);
+            await fetchGradingDetails(ethAddress);
+
+            document.getElementById("loading").style.display = "none";
+        }
+
+        async function fetchCropDetails(ethAddress) {
+            try {
+                const ABI = await loadContractABI();
+                if (!ABI) return;
+                const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+
+                const events = await contract.getPastEvents("CropApplicationSubmitted", {
+                    fromBlock: 0,
+                    toBlock: "latest",
+                });
+
+                const userEvents = events.filter(event => event.returnValues.ethAddress.toLowerCase() === ethAddress.toLowerCase());
+                if (userEvents.length === 0) {
+                    document.getElementById("cropDetails").innerText = "No crop application found.";
+                    return;
+                }
+
+                const latestEvent = userEvents[userEvents.length - 1];
+                const tx = await web3.eth.getTransaction(latestEvent.transactionHash);
+                if (!tx || !tx.input) throw new Error("Transaction data not found.");
+
+                const decodedInput = web3.eth.abi.decodeParameters(
+                    [
+                        { type: "string", name: "cropName" },
+                        { type: "string", name: "cropType" },
+                        { type: "uint256", name: "sowDate" },
+                        { type: "uint256", name: "harvestDate" },
+                        { type: "string", name: "district" }
+                    ],
+                    tx.input.slice(10)
+                );
+
+                document.getElementById("cropDetails").innerHTML = `
+                    <p><strong>Crop Name:</strong> ${decodedInput.cropName}</p>
+                    <p><strong>Crop Type:</strong> ${decodedInput.cropType}</p>
+                    <p><strong>Sow Date:</strong> ${new Date(decodedInput.sowDate * 1000).toLocaleDateString()}</p>
+                    <p><strong>Harvest Date:</strong> ${new Date(decodedInput.harvestDate * 1000).toLocaleDateString()}</p>
+                    <p><strong>District:</strong> ${decodedInput.district}</p>
+                `;
+            } catch (err) {
+                console.error(err);
+                document.getElementById("cropDetails").innerText = "Error fetching crop details.";
+            }
+        }
+
+        async function fetchGradingDetails(ethAddress) {
+            try {
+                const ABI = await loadContractABI();
+                if (!ABI) return;
+                const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+
+                const applicationId = await contract.methods.ethToApplicationId(ethAddress).call();
+
+                if (!applicationId || applicationId === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+                    document.getElementById("gradingDetails").innerText = "No grading details found.";
+                    return;
+                }
+
+                const application = await contract.methods.cropApplications(applicationId).call();
+
+                function formatDate(timestamp) {
+                    return timestamp > 0 ? new Date(timestamp * 1000).toLocaleDateString() : "N/A";
+                }
+
+                document.getElementById("gradingDetails").innerHTML = `
+                    <p><strong>Grade:</strong> ${application.cropGrade || "Not Graded Yet"}</p>
+                    <p><strong>Per KG Rate:</strong> ${application.perKgRate || "N/A"} ₹</p>
+                    <p><strong>Quantity:</strong> ${application.quantity || "N/A"} KG</p>
+                    <p><strong>Grading Date:</strong> ${formatDate(application.gradingTimestamp)}</p>
+                    <p><strong>Rate Assigned On:</strong> ${formatDate(application.rateTimestamp)}</p>
+                `;
+            } catch (err) {
+                console.error(err);
+                document.getElementById("gradingDetails").innerText = "Error fetching grading details.";
+            }
+        }
+
+        // Autofill ethAddress from URL
+        window.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const ethAddress = params.get("ethAddress");
+
+            if (ethAddress) {
+                const inputField = document.getElementById("ethAddress");
+                const getDetailsButton = document.querySelector("button[onclick='fetchDetails()']");
+
+                inputField.value = ethAddress;
+                setTimeout(() => {
+                    getDetailsButton.click();
+                }, 300);
+            }
+        });
+    </script>
+
+</body>
+</html>

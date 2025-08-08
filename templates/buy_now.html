@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buy Now - Harvest Helper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+          rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #27ae60;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #218c53;
+        }
+
+        .info {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            display: none; /* initially hidden */
+        }
+
+        .total-section .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 5px 0;
+        }
+
+        small {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2><i class="fas fa-shopping-cart"></i> Confirm Your Purchase</h2>
+
+    <div class="info">
+        <p><strong>Crop Name:</strong> {{ crop.crop_details.cropName | upper }}</p>
+        <p><strong>District:</strong> {{ crop.crop_details.district | upper }}</p>
+        <p><strong>Grade:</strong> {{ crop.grade }}</p>
+        <p><strong>Available Quantity:</strong> {{ crop.quantity }} KG</p>
+        <p><strong>Price per KG:</strong> Rs. {{ crop.per_kg_rate }}</p>
+    </div>
+
+    <form id="purchaseForm" method="POST" action="{{ url_for('create_checkout') }}">
+        <input type="hidden" name="eth_address" value="{{ crop.eth_address }}">
+
+        <div class="form-group">
+            <label for="buyer_name">Buyer Name</label>
+            <input type="text" name="buyer_name" id="buyer_name" value="{{ session['buyer_name'] }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="contact_number">Contact Number</label>
+            <input type="text" name="contact_number" id="contact_number" placeholder="Enter your contact number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Quantity to Purchase (KG)</label>
+            <input type="number" name="quantity" id="quantity" min="1" max="{{ crop.quantity }}" required>
+            <small>Note: Orders are accepted for 30 KG and above only. Max: {{ crop.quantity }} KG</small>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Delivery Address</label>
+            <textarea name="location" id="address" rows="4" required></textarea>
+        </div>
+
+        <!-- Total Section -->
+        <div id="totalSection" class="total-section">
+            <div class="total" id="deliveryFee">Delivery Fee: Rs. 0</div>
+            <div class="total" id="totalAmount">Total Amount: Rs. 0</div>
+        </div>
+
+        <button type="submit" class="btn"><i class="fas fa-credit-card"></i> Proceed to Payment</button>
+    </form>
+</div>
+
+<script>
+    const rate = {{ crop.per_kg_rate }};
+    const maxQty = {{ crop.quantity }};
+    const quantityInput = document.getElementById("quantity");
+    const form = document.getElementById("purchaseForm");
+    const totalDisplay = document.getElementById("totalAmount");
+    const deliveryFeeDisplay = document.getElementById("deliveryFee");
+    const addressInput = document.getElementById("address");
+    const totalSection = document.getElementById("totalSection");
+
+    let perKmRate = 2; // ₹2 per KM
+    let distanceKm = 0; // initially 0
+
+    function updateTotal() {
+        let qty = parseFloat(quantityInput.value);
+
+        if (!isNaN(qty) && qty > 0 && distanceKm > 0) {
+            let cropPrice = qty * rate;
+            let deliveryCharge = distanceKm * perKmRate;
+            let finalTotal = cropPrice + deliveryCharge;
+
+            deliveryFeeDisplay.textContent = "Delivery Fee: Rs. " + deliveryCharge.toFixed(2);
+            totalDisplay.textContent = "Total Amount: Rs. " + finalTotal.toFixed(2);
+            totalSection.style.display = "block"; // show totals
+        } else {
+            deliveryFeeDisplay.textContent = "Delivery Fee: Rs. 0";
+            totalDisplay.textContent = "Total Amount: Rs. 0";
+            totalSection.style.display = "none"; // hide totals
+        }
+    }
+
+    quantityInput.addEventListener("input", updateTotal);
+
+    addressInput.addEventListener("blur", function() {
+        const sellerAddress = "{{ crop.farmer_details.userAddress }}";
+        const buyerAddress = addressInput.value.trim();
+
+        if (!buyerAddress) {
+            distanceKm = 0;
+            totalSection.style.display = "none";
+            return;
+        }
+
+        const apiKey = "UJTMijw6thCrpK4KvQD04dwU1e3oD7kNOHdoUTtfmWRksgSegF918oG2qjHBFk1v";
+        const url = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${encodeURIComponent(sellerAddress)}&destinations=${encodeURIComponent(buyerAddress)}&key=${apiKey}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    const element = data.rows[0]?.elements[0];
+                    if (element && element.status === "OK" && element.distance) {
+                        const distanceMeters = element.distance.value;
+                        distanceKm = distanceMeters / 1000; // convert to KM
+                        updateTotal();
+                    } else {
+                        console.error("Distance data invalid or not found", element);
+                        distanceKm = 0;
+                        totalSection.style.display = "none";
+                    }
+                } catch (error) {
+                    console.error("Error reading distance data:", error);
+                    distanceKm = 0;
+                    totalSection.style.display = "none";
+                }
+            })
+            .catch(err => {
+                console.error("Distance API Error:", err);
+                distanceKm = 0;
+                totalSection.style.display = "none";
+            });
+    });
+
+    // Validate on form submit
+    form.addEventListener("submit", function(event) {
+        const qty = parseFloat(quantityInput.value);
+
+        if (isNaN(qty) || qty < 30) {
+            event.preventDefault(); // stop form submission
+            alert("Minimum order quantity is 30 KG. Please increase your quantity.");
+        }
+    });
+</script>
+
+</body>
+</html>

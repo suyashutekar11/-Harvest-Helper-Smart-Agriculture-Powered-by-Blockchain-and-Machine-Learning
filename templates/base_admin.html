@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for easier manipulation -->
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <a href="#">Admin Panel</a>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li><a href="#" id="profile-link">Profile</a></li>
+                    <li><a href="/admin_logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar">
+        <h3>Admin Menu</h3>
+        <a href="{{ url_for('admin_users') }}">Registered Users</a>
+        <a href="{{ url_for('admin_enquiries') }}">Enquiries</a>
+         <a href="{{ url_for('admin_applications') }}">New Applications</a>
+         <a href="{{ url_for('manage_reviewteam') }}">Manage Review Team</a>
+         <a href="{{ url_for('crop_sale_applications') }}">Application For Sale</a>
+         <a href="{{ url_for('ecommerce_orders') }}">Ecommerce Orders</a> 
+         <a href="{{ url_for('ecommerce_inventory') }}">Ecommerce Inventory</a>
+
+
+
+
+
+        <!-- Add more sidebar options as needed -->
+    </div>
+
+    <div class="content">
+        {% block content %}
+        <!-- Dynamic content goes here -->
+        {% endblock %}
+    </div>
+
+    <script>
+        // Modal functionality
+        var modal = document.getElementById("profile-modal");
+        var span = document.getElementsByClassName("close")[0];
+
+        document.getElementById("profile-link").onclick = function() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Harvest Helper Payment Gateway</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333333;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #777777;
+      margin-bottom: 30px;
+    }
+
+    #payment-form {
+      margin-top: 20px;
+    }
+
+    #checkout-button {
+      background-color: #6772e5;
+      color: white;
+      font-size: 18px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    #checkout-button:hover {
+      background-color: #5469d4;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #999999;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Harvest Helper</h1>
+    <p>Click below to proceed with the checkout.</p>
+    
+    <!-- Amount display -->
+    <p id="amount-display">Amount: ₹<span id="amount">{{ fee }}</span></p>
+
+    <form id="payment-form">
+      <button type="button" id="checkout-button">Proceed to Payment</button>
+    </form>
+  </div>
+
+  <script src="https://js.stripe.com/v3"></script>
+
+  <script>
+    const checkoutButton = document.getElementById('checkout-button');
+      
+    // Get the fee and plan from Flask
+    const plan = "{{ plan }}";  // Dynamically passed from Flask
+    const publicKey = "{{ public_key }}";  // Stripe public key passed from Flask
+  
+    checkoutButton.addEventListener('click', () => {
+      fetch(`/create-checkout-session?plan=${plan}`, {
+        method: 'POST',
+      })
+      .then(response => response.json())
+      .then(session => {
+        if (session.id) {
+          const stripe = Stripe(publicKey);  // Initialize Stripe with the public key
+          return stripe.redirectToCheckout({ sessionId: session.id });  // Use session.id here
+        } else {
+          console.error('Session ID not returned:', session.error);
+        }
+      })
+      .catch(error => {
+        console.log('Error creating checkout session:', error);
+      });
+    });
+  </script>
+</body>
+
+</html>

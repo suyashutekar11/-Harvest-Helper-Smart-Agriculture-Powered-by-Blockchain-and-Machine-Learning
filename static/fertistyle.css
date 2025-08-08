@@ -1,0 +1,67 @@
+/* style.css */
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('../static/fert.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+.container {
+    max-width: 600px;
+    margin: 50px auto 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4d4e4f;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Recommendation section styles */
+.recommendation {
+    margin-top: 30px;
+}
+
+.recommendation h2 {
+    color: #007bff;
+}
+
+.recommendation p {
+    margin-bottom: 10px;
+}
+
+.recommendation a {
+    color: #007bff;
+    text-decoration: none;
+}

@@ -1,0 +1,185 @@
+<!-- about.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('{{ url_for('static', filename='style/one.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: rgb(38, 40, 38);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .about-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 40px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+            flex-wrap: wrap;
+        }
+
+        .about-image {
+            flex: 1;
+            max-width: 45%;
+            overflow: hidden;
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .about-info {
+            flex: 1;
+            max-width: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            color: #2b2b2b;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            transition: transform 0.3s ease;
+        }
+
+        .about-info:hover {
+            transform: translateY(-3px);
+        }
+
+        .about-info h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            color: #2e7d32;
+            letter-spacing: 0.5px;
+            border-left: 5px solid #4CAF50;
+            padding-left: 15px;
+        }
+
+        .about-info p {
+            margin-bottom: 14px;
+            text-align: justify;
+        }
+
+        .support-card {
+            background-color: white;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .support-card h2 {
+            color: #4CAF50;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .support-card p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .support-btn {
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        .support-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>About Us</h1>
+    </header>
+
+    <section class="about-container">
+        <!-- Image slider -->
+        <div class="about-image">
+            <div class="slider">
+                <img class="slide" src="{{ url_for('static', filename='images/1.png') }}" alt="Image 1">
+                <img class="slide" src="{{ url_for('static', filename='images/2.png') }}" alt="Image 2">
+                <img class="slide" src="{{ url_for('static', filename='images/3.png') }}" alt="Image 3">
+            </div>
+        </div>
+
+        <!-- Information paragraph -->
+        <div class="about-info">
+            <h2>Welcome to Harvest Helper</h2>
+            <p>At Harvest Helper, we are revolutionizing agriculture by bringing together the power of Machine Learning and Blockchain to create smarter, more efficient farming solutions.</p>
+            <p>Our mission is to empower farmers with the tools they need to optimize their harvests, enhance productivity, and ensure sustainability in farming.</p>
+            <p>Join us in creating a smarter future for farming!</p>
+        </div>
+    </section>
+
+    <!-- Support Card Section -->
+    <section style="display: flex; justify-content: center; padding: 40px;">
+        <div class="support-card">
+            <h2>Need Support?</h2>
+            <p>If you have any questions or need help, feel free to reach out to our support team. We are here to assist you.</p>
+            <a href="/contact" class="support-btn">Get Support</a>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+            const slider = document.querySelector('.slider');
+
+            function changeSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+
+            setInterval(changeSlide, 3000); // Change slide every 3 seconds
+        });
+    </script>
+
+</body>
+
+</html>
